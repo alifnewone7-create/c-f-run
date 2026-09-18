@@ -250,8 +250,8 @@ function ResultCard({ result, onReset }: { result: Injection; onReset: () => voi
         <VerdictPlate direction={direction} testid="injector-verdict" />
 
         <div className="inj-stats">
-          <StatTile icon={Clock} label="Entry time" value={formatTime(entry)} testid="injector-entry-time" />
-          <StatTile icon={Timer} label="Duration" value={`${duration} Min`} testid="injector-duration" />
+          <StatTile icon={Clock} label="Entry time" value={formatTime(entry)} tone="amber" testid="injector-entry-time" />
+          <StatTile icon={Timer} label="Duration" value={`${duration} Min`} tone="iris" testid="injector-duration" />
         </div>
 
         <StrategyLine strategy={result.strategy} testid="injector-strategy-used" />

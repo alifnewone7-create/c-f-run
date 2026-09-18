@@ -93,6 +93,7 @@ Design system: "cosmic purple" — background `#0b0618`, iris `#6d3bff` / `#8b5c
   - Generate Live Signal icon → `GlyphLive`; Future generate icon → `GlyphFuture` (both from `coco-glyphs.tsx`).
   - Future step 2 selected markets → 2-col `fs-sel-grid` rows (flags, pair, OTC/Real, remove/lock button); >4 → shows 4 + `future-selected-toggle` ("See all N pairs" / "Show less"). Old `fs-chips` markup unused.
   - Testing agent iteration_19: 100% frontend pass (desktop + mobile).
+  - Follow-up: Injector result Entry time (amber) / Duration (iris) tiles now use the same `inj-stat-grad` gradient style as Live. Self-verified via screenshot (390px).
 
 ## Backlog
 - P1: none pending from user.
