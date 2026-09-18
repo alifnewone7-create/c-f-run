@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { X, ChevronDown, Check, Sparkles } from 'lucide-react'
+import { X, ChevronDown, Check, Cpu } from 'lucide-react'
 import { STRATEGIES, getStrategy, type StrategyId } from '@/lib/strategies'
 import { cn } from '@/lib/utils'
 
@@ -43,7 +43,7 @@ export function StrategySelect({
       <header className="stg-head">
         <p className="inj-kicker inj-kicker-soft">Select strategy</p>
         <span className="inj-chip">
-          <Sparkles className="h-3 w-3" />
+          <Cpu className="h-3 w-3" />
           Engine mode
         </span>
       </header>
@@ -58,7 +58,7 @@ export function StrategySelect({
         data-testid={`${testidPrefix}-strategy-field`}
       >
         <span className="stg-field-thumb" aria-hidden="true">
-          <img src={active.img} alt="" width={480} height={720} decoding="async" />
+          <img src={active.imgSm} alt="" width={240} height={360} decoding="async" />
         </span>
         <span className="stg-field-body">
           <span className="stg-field-name coco-sub" data-testid={`${testidPrefix}-strategy-value`}>
@@ -123,10 +123,14 @@ function StrategyRing({
   useEffect(() => {
     if (!open) return
     document.body.style.overflow = 'hidden'
+    /* Freeze the page underneath: the ring backdrop is fully opaque, so the
+       signal page behind it never needs to paint while the ring spins. */
+    document.documentElement.setAttribute('data-ring-open', 'stg')
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && close()
     document.addEventListener('keydown', onKey)
     return () => {
       document.body.style.overflow = ''
+      document.documentElement.removeAttribute('data-ring-open')
       document.removeEventListener('keydown', onKey)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -180,15 +184,27 @@ function StrategyRing({
     }, 200)
   }
 
+  /* Which strategy does a tap at this point mean?
+     - directly on a card face → that card
+     - in the seam between two cards (the ring box in the middle of the
+       stage) → the card currently shown at the front, so a tap in the
+       centre never feels dead
+     - anywhere else → nothing */
+  function idxFromTarget(target: HTMLElement): number {
+    const face = target.closest<HTMLElement>('[data-idx]')
+    if (face) return Number(face.dataset.idx)
+    if (target.closest('.dsh-ring-tilt')) return frontIdx.current
+    return -1
+  }
+
   function onPointerDown(e: React.PointerEvent) {
-    const face = (e.target as HTMLElement).closest<HTMLElement>('[data-idx]')
     e.currentTarget.setPointerCapture?.(e.pointerId)
     drag.current = {
       active: true,
       x: e.clientX,
       startX: e.clientX,
       startY: e.clientY,
-      idx: face ? Number(face.dataset.idx) : -1,
+      idx: idxFromTarget(e.target as HTMLElement),
       moved: false,
     }
     vel.current = 0
@@ -208,11 +224,13 @@ function StrategyRing({
     e.currentTarget.releasePointerCapture?.(e.pointerId)
     d.active = false
     if (!d.moved && d.idx >= 0) onPick(STRATEGIES[d.idx].id)
+    /* a clean tap on the empty space around the cards dismisses the picker */
+    else if (!d.moved && d.idx < 0) close()
   }
   function onClick(e: React.MouseEvent) {
     if (drag.current.moved) return
-    const face = (e.target as HTMLElement).closest<HTMLElement>('[data-idx]')
-    if (face) onPick(STRATEGIES[Number(face.dataset.idx)].id)
+    const idx = idxFromTarget(e.target as HTMLElement)
+    if (idx >= 0) onPick(STRATEGIES[idx].id)
   }
 
   if (!mounted || !open) return null
@@ -275,7 +293,18 @@ function StrategyRing({
                     style={{ '--accent': s.accent } as React.CSSProperties}
                     data-testid={`${testidPrefix}-strategy-${s.id}`}
                   >
-                    <img src={s.img} alt={s.name} width={480} height={720} draggable={false} decoding="async" />
+                    <img
+                      src={size.w <= 180 ? s.imgSm : s.img}
+                      alt=""
+                      width={480}
+                      height={720}
+                      draggable={false}
+                      decoding="async"
+                    />
+                    <span className="stg-face-text">
+                      <span className="stg-face-name">{s.name}</span>
+                      <span className="stg-face-tag">{s.tagline}</span>
+                    </span>
                     <span className="stg-face-check" aria-hidden="true">
                       <Check className="h-3.5 w-3.5" strokeWidth={3} />
                     </span>

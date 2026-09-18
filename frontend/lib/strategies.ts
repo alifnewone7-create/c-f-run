@@ -7,7 +7,10 @@ export type Strategy = {
   name: string
   tagline: string
   note: string
+  /** 480x720 artwork (no baked title — the title is rendered as text) */
   img: string
+  /** 240x360 variant used on phones + the small field thumb */
+  imgSm: string
   accent: string
 }
 
@@ -17,7 +20,8 @@ export const STRATEGIES: Strategy[] = [
     name: 'Coco SmartFlow',
     tagline: 'Momentum flow read',
     note: 'Follows the dominant liquidity stream and rides confirmed momentum.',
-    img: '/strategy/card-smartflow.webp',
+    img: '/strategy/card-smartflow-v3.webp',
+    imgSm: '/strategy/card-smartflow-v3-sm.webp',
     accent: '#8b5cff',
   },
   {
@@ -25,7 +29,8 @@ export const STRATEGIES: Strategy[] = [
     name: 'Coco AlphaGrid',
     tagline: 'Structure grid scan',
     note: 'Maps support, resistance and volatility cells before every call.',
-    img: '/strategy/card-alphagrid.webp',
+    img: '/strategy/card-alphagrid-v3.webp',
+    imgSm: '/strategy/card-alphagrid-v3-sm.webp',
     accent: '#4fd1ff',
   },
   {
@@ -33,7 +38,8 @@ export const STRATEGIES: Strategy[] = [
     name: 'Coco Auralis',
     tagline: 'Sentiment aura model',
     note: 'Blends pressure, sentiment and reversal aura for contrarian entries.',
-    img: '/strategy/card-auralis.webp',
+    img: '/strategy/card-auralis-v3.webp',
+    imgSm: '/strategy/card-auralis-v3-sm.webp',
     accent: '#6ee7b7',
   },
   {
@@ -41,7 +47,8 @@ export const STRATEGIES: Strategy[] = [
     name: 'Coco Zenx',
     tagline: 'Calm range balance',
     note: 'Waits for quiet, balanced ranges and plays the clean mean reversion.',
-    img: '/strategy/card-zenx.webp',
+    img: '/strategy/card-zenx-v3.webp',
+    imgSm: '/strategy/card-zenx-v3-sm.webp',
     accent: '#c4a6ff',
   },
   {
@@ -49,7 +56,8 @@ export const STRATEGIES: Strategy[] = [
     name: 'Coco Algoryx',
     tagline: 'Algorithmic core',
     note: 'Runs a multi-factor algorithmic core that stacks every confirmation.',
-    img: '/strategy/card-algoryx.webp',
+    img: '/strategy/card-algoryx-v3.webp',
+    imgSm: '/strategy/card-algoryx-v3-sm.webp',
     accent: '#ffb457',
   },
 ]

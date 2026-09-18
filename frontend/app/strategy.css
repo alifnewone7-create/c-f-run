@@ -85,7 +85,7 @@
   color: rgba(255, 255, 255, 0.5);
 }
 
-/* ring faces: keep paint cheap — image + a static check badge only */
+/* ring faces: keep paint cheap — image + text + a static check badge only */
 .stg-ring .dsh-backdrop,
 .stg-ring .dsh-backdrop.is-ring {
   /* no backdrop-filter: blurring the live page behind made the ring stutter */
@@ -93,14 +93,62 @@
   backdrop-filter: none;
   background: #07041a;
 }
+/* page underneath is fully covered → stop it painting behind the ring */
+html[data-ring-open='stg'] body > *:not(.stg-ring):not(script):not(style):not(link) {
+  visibility: hidden !important;
+}
+/* tapping the empty area around the cards should close the picker:
+   let those clicks fall through the panel to the backdrop underneath */
+.stg-ring .dsh-ring-panel {
+  pointer-events: none;
+}
+.stg-ring .dsh-ring-head,
+.stg-ring .dsh-ring-stage,
+.stg-ring .dsh-ring-foot {
+  pointer-events: auto;
+}
 .stg-ring .dsh-ring-face {
   contain: paint;
+  container-type: inline-size;
 }
 .stg-face {
   border-color: rgba(196, 166, 255, 0.18);
 }
 .stg-face[data-on='true'] {
   border-color: var(--accent);
+}
+
+/* baked-in look, rendered as live text (crisp at every card size) */
+.stg-face-text {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 6.5cqw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2.2cqw;
+  padding: 0 5cqw;
+  text-align: center;
+  pointer-events: none;
+}
+.stg-face-name {
+  font-family: var(--font-display), sans-serif;
+  font-weight: 700;
+  font-size: 9.6cqw;
+  line-height: 1.04;
+  letter-spacing: -0.015em;
+  white-space: nowrap;
+  color: #fff;
+  text-shadow: 0 2px 14px rgba(6, 3, 20, 0.85);
+}
+.stg-face-tag {
+  font-family: var(--font-tech), ui-monospace, monospace;
+  font-size: 4cqw;
+  line-height: 1.2;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  color: color-mix(in srgb, var(--accent) 62%, #ffffff);
 }
 .stg-face-check {
   position: absolute;

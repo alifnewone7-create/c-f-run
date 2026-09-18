@@ -74,6 +74,15 @@ Design system: "cosmic purple" — background `#0b0618`, iris `#6d3bff` / `#8b5c
   - Banner v2: candles removed from the centre, purple-graded bull (mint-violet) / bear (rose-magenta) → `/public/dash/hero-bullbear-v2.webp`; frame hairline changed from multi-colour to dark-purple gradient (`#8b5cff → #2a1660 → #7c45ff`), corner ticks lilac.
   - Sidebar collapse toggle moved from the header to the footer (above the profile card) as a full-width `dsh-side-link dsh-side-toggle` row ("Collapse sidebar"); header now brand-only.
 
+- 2026-09-18 (strategy card text + mobile perf, Banglish request):
+  - Strategy artwork regenerated WITHOUT the baked giant all-caps title: `public/strategy/card-{id}-v3.webp` (480x720) + `-v3-sm.webp` (240x360); bottom title band cropped and faded into the cosmic base (script logic: crop at y=612, gradient to #0a0514). Old `card-*.webp` deleted (filename-change rule).
+  - Title is now LIVE TEXT on the card face (`.stg-face-text`: mixed-case display name, `white-space:nowrap`, 9.6cqw via `container-type: inline-size` on `.stg-ring .dsh-ring-face`, + letterspaced mono tagline) — matches the reference the user sent.
+  - Ring picker UX: `idxFromTarget()` — tap a card = select it, tap the seam in the ring centre = select the FRONT card (footer label), tap the empty space = close. Drag still only rotates. Panel is `pointer-events:none` (children auto) so taps around the cards reach the backdrop.
+  - Mobile perf: phones load the 240px art (`size.w <= 180 ? imgSm : img`, no srcset → no ERR_ABORTED), face box-shadows off, ring backdrop opaque, and the page behind is `visibility:hidden` while open via `html[data-ring-open="stg"]`.
+  - NEW `app/perf-mobile.css` (imported LAST in layout.tsx): below 768px removes backdrop-filter from `.mk[data-variant=chips] .mk-item`, `.mk-head`, `.fs-dock`, `.sig-picker-backdrop`, `.tl-modal-backdrop`, `.coco-dark .coco-card`, `.coco-glass`, `.coco-tape`, `.market-tile`; kills box-shadow pulse animations (`.mk-live i`, `.inj-dir-tag-text i`, `.sig-bcard-badge i`, `.inj-verdict-kicker i`, `.inj-btn-sheen`, glyph animations) and list drop shadows. Measured 60fps at 4x CPU throttle on /live-signals, /injector scroll and while the ring spins.
+  - "Engine mode" chip icon: `Sparkles` → `Cpu`.
+  - Test user `stgperf.coco@example.com` / `StgPerf#2026` (premium). Testing agent: all pass (mobile + desktop, 3 flows).
+
 ## Backlog
 - P1: none pending from user.
 - P2: Consider self-hosting all flag SVGs to remove the external CDN dependency entirely.

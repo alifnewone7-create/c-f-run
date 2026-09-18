@@ -19,6 +19,7 @@ import './dashboard.css'
 import './strategy.css'
 import './loader.css'
 import './admin.css'
+import './perf-mobile.css'
 
 const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] })
 const geistMono = Geist_Mono({

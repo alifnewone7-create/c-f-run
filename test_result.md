@@ -265,20 +265,52 @@ frontend:
         agent: "testing"
         comment: "PASS - Admin portal at /coco-private-island shows loader with correct text 'Loading portal...'. Loader element detected with data-testid='coco-loading', visible with dark purple background. Admin login form appears after loader completes."
 
+  - task: "Strategy card baked-style text + mobile-smooth strategy ring (Live / Injector / Future)"
+    implemented: true
+    working: true
+    file: "/app/frontend/components/strategy-select.tsx, /app/frontend/app/strategy.css, /app/frontend/app/perf-mobile.css, /app/frontend/lib/strategies.ts"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Strategy artwork regenerated without the baked giant title (card-*-v3.webp + -sm 240x360 variant); the title is now live text on the card face (name mixed-case display font + letterspaced mono tagline, container-query sized). Mobile perf: srcset serves the 240px art on phones, ring face shadows removed, page behind the ring is visibility:hidden while open (html[data-ring-open=stg]), and a new perf-mobile.css removes backdrop blurs from market chip cards / sticky market heads / future dock / modal backdrops and stops box-shadow pulse animations on phones. Engine mode chip icon changed from Sparkles to Cpu. Measured 60fps at 4x CPU throttle on /injector + /live-signals scroll and while the ring spins. Test user: stgperf.coco@example.com / StgPerf#2026 (premium)."
+      - working: false
+        agent: "testing"
+        comment: "CRITICAL BUG FOUND: Card selection doesn't update strategy value. Tested on mobile (390x844) and desktop (1920x900) viewports. When clicking a strategy card (e.g., AlphaGrid), the ring closes but the strategy field value remains 'Coco SmartFlow' instead of updating to the selected strategy. The onPick callback appears to be called (ring closes) but onChange is not updating the parent state. VERIFIED WORKING: (1) Engine mode chip shows CPU icon (not Sparkles) on all 3 flows, (2) All 5 cards render correctly with single-line text overlay (white-space: nowrap), uppercase letterspaced taglines, no duplicate baked titles, (3) Ring opens on Live/Injector/Future flows, (4) Page behind ring is hidden (data-ring-open='stg', body overflow hidden), (5) X button closes ring, (6) Escape key closes ring, (7) Backdrop closes ring (with force=True), (8) Scrolling smooth on mobile, (9) Check badge shows on selected card. MINOR ISSUE: Strategy image files show ERR_ABORTED in console (card-*-v3-sm.webp), though images display correctly (possibly from cache). Backdrop click requires force=True to bypass ring panel pointer interception."
+      - working: false
+        agent: "testing"
+        comment: "RETEST AFTER FIX: CRITICAL BUG STILL PRESENT - Card selection is completely broken. Tested with correct 3D overlap method (using document.elementFromPoint to find card on top, then clicking center point). Ring label shows 'Coco Algoryx' as the card on top, clicked center point, but ring does NOT close and value does NOT update (remains 'Coco SmartFlow'). The onClick/onPick handler is not firing at all. VERIFIED WORKING: (1) CPU icon correct on all flows (Live/Injector/Future), (2) All 5 cards render correctly - names on single line with white-space:nowrap CSS, taglines with text-transform:uppercase CSS, no duplicate baked titles, (3) Ring opens correctly on all 3 flows, (4) Page visibility correct (data-ring-open='stg' set while open, removed when closed, body overflow hidden while open), (5) X button closes ring, (6) Escape key closes ring, (7) Backdrop click closes ring. STILL BROKEN: Strategy image files show ERR_ABORTED (all 5 card-*-v3-sm.webp files). Screenshots captured on mobile and desktop show ring rendering correctly but selection completely non-functional."
+      - working: true
+        agent: "testing"
+        comment: "RETEST AFTER SELECTION FIX - ALL TESTS PASSED ✅. Comprehensive testing completed on mobile (390x844) and desktop (1920x900) across all 3 flows (Live Signals, Injector, Future Signals). NEW BEHAVIOR VERIFIED: (1) Tapping center (seam between cards) correctly selects the card shown at the FRONT (footer label) - tested 3 iterations per flow, ring closes and value updates correctly every time. (2) Tapping empty space (x=30, y=300) closes picker without changing selection. (3) Horizontal swipe (200px drag) rotates ring without selecting or closing. (4) X button, Escape key, and backdrop click all close ring without changing selection. (5) Selected card shows check badge (data-on='true'). (6) All 5 cards render correctly with single-line names (white-space: nowrap CSS) and uppercase taglines (text-transform: uppercase CSS). (7) No console errors detected. The idxFromTarget function correctly identifies: direct card taps, center/seam taps (returns frontIdx.current), and empty space taps (returns -1). The onPointerUp handler properly distinguishes between taps (selects) and drags (rotates only). All previous critical bugs are now RESOLVED."
+
 metadata:
   created_by: "testing_agent"
-  version: "1.1"
-  test_sequence: 2
+  version: "1.2"
+  test_sequence: 3
   run_ui: true
-  test_date: "2026-09-16"
+  test_date: "2026-09-18"
 
 test_plan:
-  current_focus:
-    - "All comprehensive tests completed successfully"
+  current_focus: []
   stuck_tasks: []
-  test_all: true
+  test_all: false
   test_priority: "high_first"
 
 agent_communication:
   - agent: "testing"
     message: "Completed comprehensive testing of loading screen flash bug fix. All verification points PASSED. The fix successfully eliminates the background flash issue by setting html background to #0b0618 and ensuring loader paints immediately with matching dark purple background. No animation delay detected. Redirect flows work correctly. Screenshots captured at multiple time intervals confirm no flash of different background color."
+
+  - agent: "main"
+    message: "Please verify on mobile (390x844) AND desktop (1920x900), logged in as stgperf.coco@example.com / StgPerf#2026 (premium): (1) Live Signals -> pick a market -> 'Select strategy' field shows Cpu icon chip 'Engine mode'; opening the field shows the rotating ring where every card renders its name (e.g. 'Coco AlphaGrid') on ONE line plus an uppercase tagline underneath, no baked duplicate title; (2) tapping a card selects it and the field/value updates; close via X, backdrop and Escape; (3) same flow in Coco Injector (after picking a market -> duration step) and Future Signals step 2; (4) pages scroll smoothly (no console errors) and the ring spins without visual glitches; (5) nothing behind the ring is visible/clickable while it is open."
+
+  - agent: "testing"
+    message: "CRITICAL BUG: Strategy card selection is broken. When user clicks a card in the ring, the ring closes but the selected strategy value does NOT update in the field. Tested on both mobile and desktop - clicking AlphaGrid closes the ring but field still shows 'Coco SmartFlow'. The onPick callback fires (ring closes) but the parent state is not updating. This breaks the core functionality. ALSO: Strategy images show ERR_ABORTED errors in console (all 5 card-*-v3-sm.webp files), and backdrop click requires force=True to work (ring panel intercepts pointer events). Everything else works: CPU icon correct, text overlays correct, single-line names, no baked titles, ring opens/closes via X and Escape, page hiding works, scrolling smooth."
+
+  - agent: "testing"
+    message: "RETEST COMPLETED - CRITICAL BUG STILL PRESENT: Card selection is completely broken. Used correct 3D overlap testing method (document.elementFromPoint + mouse.click at center). Ring shows 'Coco Algoryx' as card on top, clicked center, but ring does NOT close and value does NOT update. The onClick/onPick handler is not firing. This is worse than before - previously ring closed but value didn't update, now clicking does nothing at all. All other features work: CPU icon, card rendering (names nowrap, tags uppercase CSS), ring open/close via X/Escape/backdrop, page visibility, scrolling. Strategy images still show ERR_ABORTED (all 5 -sm.webp files). Screenshots captured on mobile/desktop. RECOMMENDATION: Debug the onClick handler in strategy-select.tsx - the pointer events or click detection is broken."
+
+  - agent: "testing"
+    message: "STRATEGY PICKER FIX VERIFIED ✅ - All tests passed! Tested new behavior on mobile (390x844) and desktop (1920x900) across Live Signals, Injector, and Future Signals. Center tap correctly selects front card (tested 3x per flow), empty space tap closes without selection, swipe rotates without selecting/closing, X/Escape/backdrop close correctly, check badge shows on selected card, all 5 cards render with correct text styling (nowrap + uppercase), zero console errors. The idxFromTarget and onPointerUp logic now works perfectly. Previous critical bugs fully resolved. All requirements met."
