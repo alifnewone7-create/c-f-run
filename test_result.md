@@ -286,6 +286,21 @@ frontend:
         agent: "testing"
         comment: "RETEST AFTER SELECTION FIX - ALL TESTS PASSED ✅. Comprehensive testing completed on mobile (390x844) and desktop (1920x900) across all 3 flows (Live Signals, Injector, Future Signals). NEW BEHAVIOR VERIFIED: (1) Tapping center (seam between cards) correctly selects the card shown at the FRONT (footer label) - tested 3 iterations per flow, ring closes and value updates correctly every time. (2) Tapping empty space (x=30, y=300) closes picker without changing selection. (3) Horizontal swipe (200px drag) rotates ring without selecting or closing. (4) X button, Escape key, and backdrop click all close ring without changing selection. (5) Selected card shows check badge (data-on='true'). (6) All 5 cards render correctly with single-line names (white-space: nowrap CSS) and uppercase taglines (text-transform: uppercase CSS). (7) No console errors detected. The idxFromTarget function correctly identifies: direct card taps, center/seam taps (returns frontIdx.current), and empty space taps (returns -1). The onPointerUp handler properly distinguishes between taps (selects) and drags (rotates only). All previous critical bugs are now RESOLVED."
 
+  - task: "Future Signals step 2: no Clear all, min 1 market, redesigned setup cards"
+    implemented: true
+    working: true
+    file: "/app/frontend/components/future-signals-view.tsx, /app/frontend/app/signals.css"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Step 2 'Clear all' button removed (data-testid future-clear-selected gone). The last remaining market cannot be removed: its chip shows a Lock icon, the button is disabled and a hint appears (future-selected-hint). Both setup cards redesigned (fs2-* classes): accent hairline cards, gradient icon tiles with NEW unique icons (Coins for Selected markets, Sigma for How many signals), count badge with pair label, big count dial with -/+ tiles, progress rail and 4-column preset grid. Verified on mobile 390 + desktop 1920."
+      - working: true
+        agent: "testing"
+        comment: "COMPREHENSIVE TESTING COMPLETED ✅ - Tested on both mobile (390x844) and desktop (1920x900). ALL REQUIREMENTS VERIFIED: (1) NO 'Clear all' button exists in step 2 (data-testid future-clear-selected not found), (2) Selected markets card displays correctly with Coins icon, count badge showing '3 pairs', chip removal works (3->2->1), (3) Last remaining chip is LOCKED: data-locked='true', Lock icon visible, remove button disabled, clicking does NOT remove the chip (count stays at 1), hint message appears 'One market must stay — add more from the Markets step', (4) How many signals card displays correctly with Sigma icon, default count is 5, minus button disabled at 5, plus button increases count, all presets (5,10,15,20) work correctly, plus button disabled at 20, input clamping works (99->20, 1->5), progress rail grows with count, (5) Both cards render correctly on mobile and desktop with proper icons and no overflow, (6) Generate button works: clicking with 1 market and 5 signals starts analyzing stage and renders results successfully, (7) NO console errors detected. Screenshots captured for mobile and desktop viewports. Premium account test successful."
+
 metadata:
   created_by: "testing_agent"
   version: "1.2"
@@ -314,3 +329,6 @@ agent_communication:
 
   - agent: "testing"
     message: "STRATEGY PICKER FIX VERIFIED ✅ - All tests passed! Tested new behavior on mobile (390x844) and desktop (1920x900) across Live Signals, Injector, and Future Signals. Center tap correctly selects front card (tested 3x per flow), empty space tap closes without selection, swipe rotates without selecting/closing, X/Escape/backdrop close correctly, check badge shows on selected card, all 5 cards render with correct text styling (nowrap + uppercase), zero console errors. The idxFromTarget and onPointerUp logic now works perfectly. Previous critical bugs fully resolved. All requirements met."
+
+  - agent: "testing"
+    message: "FUTURE SIGNALS STEP 2 REDESIGN - ALL TESTS PASSED ✅. Comprehensive testing completed on mobile (390x844) and desktop (1920x900). Verified: (1) NO 'Clear all' button in step 2, (2) Selected markets card with Coins icon, count badge '3 pairs', chip removal 3->2->1 works, (3) Last chip LOCKED with Lock icon, disabled button, hint appears, clicking does NOT remove (stays at 1), (4) How many signals card with Sigma icon, count input default 5, minus disabled at 5, plus increases count, all presets work (5,10,15,20), plus disabled at 20, input clamping works (99->20, 1->5), progress rail grows, (5) Both cards render correctly on mobile/desktop with proper icons, no overflow, (6) Generate button works with 1 market + 5 signals, analyzing stage starts, results render successfully, (7) Zero console errors. Premium account test successful. Screenshots captured."

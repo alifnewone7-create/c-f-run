@@ -83,6 +83,8 @@ Design system: "cosmic purple" — background `#0b0618`, iris `#6d3bff` / `#8b5c
   - "Engine mode" chip icon: `Sparkles` → `Cpu`.
   - Test user `stgperf.coco@example.com` / `StgPerf#2026` (premium). Testing agent: all pass (mobile + desktop, 3 flows).
 
+  - Future Signals step 2 redesign (same day): "Clear all" button removed; the last remaining market can't be dropped (chip `data-locked`, Lock icon, disabled button + `future-selected-hint`). Setup cards rebuilt as `fs2-*` (accent hairline, gradient icon tiles, count badge with "pairs" label, big -/+ count dial, progress rail, 4-col preset grid). Icons changed to unique ones: Selected markets = `Coins`, How many signals = `Sigma`. Testing agent: all pass (mobile + desktop).
+
 ## Backlog
 - P1: none pending from user.
 - P2: Consider self-hosting all flag SVGs to remove the external CDN dependency entirely.

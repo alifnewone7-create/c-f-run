@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Clock, Timer, X, Minus, Plus, Hash, Radar, RefreshCw, Layers, ArrowUp, ArrowDown, ArrowLeft, ArrowRight, Scale } from 'lucide-react'
+import { Clock, Timer, X, Minus, Plus, Coins, Sigma, Lock, Radar, RefreshCw, Layers, ArrowUp, ArrowDown, ArrowLeft, ArrowRight, Scale } from 'lucide-react'
 import { CocoPageShell } from '@/components/coco/coco-page-shell'
 import { AuthGuard } from '@/components/auth-guard'
 import { PairFlags } from '@/components/pair-flags'
@@ -90,10 +90,6 @@ function FutureStudio() {
       else next[m.id] = m
       return next
     })
-  }
-
-  function clearAll() {
-    setSelected({})
   }
 
   function reset() {
@@ -241,49 +237,73 @@ function FutureStudio() {
             <div className="inj-divider" />
 
             <div className="fs-setup-grid">
-              <div className="fs-setup-col">
-                <header className="fs-setup-head">
-                  <span className="inj-stat-icon">
-                    <Layers className="h-4 w-4" />
+              <div className="fs2-card" data-accent="iris">
+                <header className="fs2-head">
+                  <span className="fs2-icon">
+                    <Coins className="h-[18px] w-[18px]" />
                   </span>
                   <div className="min-w-0 flex-1">
-                    <p className="fs-setup-title">Selected markets</p>
-                    <p className="fs-count-sub">Go back to add or remove a pair</p>
+                    <p className="fs2-title">Selected markets</p>
+                    <p className="fs2-sub">At least one pair stays in the queue</p>
                   </div>
-                  <span className="fs-setup-badge coco-mono" data-testid="future-selected-count">
-                    {selectedList.length}
+                  <span className="fs2-badge" data-testid="future-selected-count">
+                    <b className="coco-mono">{selectedList.length}</b>
+                    <em>pair{selectedList.length > 1 ? 's' : ''}</em>
                   </span>
                 </header>
-                <SelectedRow list={selectedList} onRemove={toggle} onClear={clearAll} />
+                <SelectedRow list={selectedList} onRemove={toggle} />
               </div>
 
-              <div className="fs-setup-col" data-testid="future-count">
-                <header className="fs-setup-head">
-                  <span className="inj-stat-icon">
-                    <Hash className="h-4 w-4" />
+              <div className="fs2-card" data-accent="mint" data-testid="future-count">
+                <header className="fs2-head">
+                  <span className="fs2-icon">
+                    <Sigma className="h-[18px] w-[18px]" />
                   </span>
                   <div className="min-w-0 flex-1">
-                    <p className="fs-setup-title">How many signals?</p>
-                    <p className="fs-count-sub">Tap the number to edit · min {MIN} · max {MAX}</p>
+                    <p className="fs2-title">How many signals?</p>
+                    <p className="fs2-sub">
+                      Tap the number to edit · {MIN}–{MAX}
+                    </p>
                   </div>
                 </header>
-                <div className="fs-count-controls">
-                  <div className="fs-presets">
-                    {PRESETS.map((p) => (
-                      <button key={p} type="button" onClick={() => setCount(p)} className="fs-preset" data-on={count === p} data-testid={`future-preset-${p}`}>
-                        {p}
-                      </button>
-                    ))}
-                  </div>
-                  <div className="fs-stepper">
-                    <button type="button" onClick={() => setCount(clamp(count - 1))} disabled={count <= MIN} aria-label="Decrease signal count" data-testid="future-count-minus">
-                      <Minus className="h-4 w-4" />
-                    </button>
+
+                <div className="fs2-dial">
+                  <button
+                    type="button"
+                    onClick={() => setCount(clamp(count - 1))}
+                    disabled={count <= MIN}
+                    className="fs2-step"
+                    aria-label="Decrease signal count"
+                    data-testid="future-count-minus"
+                  >
+                    <Minus className="h-[18px] w-[18px]" />
+                  </button>
+                  <span className="fs2-value">
                     <CountField value={count} onCommit={(v) => setCount(clamp(v))} />
-                    <button type="button" onClick={() => setCount(clamp(count + 1))} disabled={count >= MAX} aria-label="Increase signal count" data-testid="future-count-plus">
-                      <Plus className="h-4 w-4" />
+                    <em>signal{count > 1 ? 's' : ''} queued</em>
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setCount(clamp(count + 1))}
+                    disabled={count >= MAX}
+                    className="fs2-step"
+                    aria-label="Increase signal count"
+                    data-testid="future-count-plus"
+                  >
+                    <Plus className="h-[18px] w-[18px]" />
+                  </button>
+                </div>
+
+                <div className="fs2-rail" aria-hidden="true">
+                  <i style={{ width: `${6 + ((count - MIN) / (MAX - MIN)) * 94}%` }} />
+                </div>
+
+                <div className="fs2-presets">
+                  {PRESETS.map((p) => (
+                    <button key={p} type="button" onClick={() => setCount(p)} className="fs2-preset" data-on={count === p} data-testid={`future-preset-${p}`}>
+                      {p}
                     </button>
-                  </div>
+                  ))}
                 </div>
               </div>
             </div>
@@ -380,7 +400,7 @@ function QueueHeader({ list, count }: { list: Market[]; count: number }) {
   )
 }
 
-function SelectedRow({ list, onRemove, onClear }: { list: Market[]; onRemove: (m: Market) => void; onClear: () => void }) {
+function SelectedRow({ list, onRemove }: { list: Market[]; onRemove: (m: Market) => void }) {
   if (list.length === 0) {
     return (
       <p className="fs-selected-empty" data-testid="future-selected-empty">
@@ -388,23 +408,33 @@ function SelectedRow({ list, onRemove, onClear }: { list: Market[]; onRemove: (m
       </p>
     )
   }
+  const locked = list.length === 1
   return (
     <div className="fs-selected" data-testid="future-selected">
       <div className="fs-chips">
         {list.map((m) => (
-          <span key={m.id} className="fs-chip" data-testid={`future-chip-${m.base}${m.quote}`}>
+          <span key={m.id} className="fs-chip" data-locked={locked} data-testid={`future-chip-${m.base}${m.quote}`}>
             <PairFlags base={m.base} quote={m.quote} size={14} />
             <span className="truncate">{marketLabel(m)}</span>
-            <button type="button" onClick={() => onRemove(m)} aria-label={`Remove ${marketLabel(m)}`}>
-              <X className="h-3 w-3" />
+            <button
+              type="button"
+              onClick={() => !locked && onRemove(m)}
+              disabled={locked}
+              title={locked ? 'Keep at least one market' : `Remove ${marketLabel(m)}`}
+              aria-label={locked ? 'At least one market is required' : `Remove ${marketLabel(m)}`}
+              data-testid={`future-chip-remove-${m.base}${m.quote}`}
+            >
+              {locked ? <Lock className="h-3 w-3" /> : <X className="h-3 w-3" />}
             </button>
           </span>
         ))}
       </div>
-      <button type="button" onClick={onClear} className="fs-clear" data-testid="future-clear-selected">
-        <X className="h-3 w-3" />
-        Clear all
-      </button>
+      {locked && (
+        <p className="fs2-hint" data-testid="future-selected-hint">
+          <Lock className="h-3 w-3" />
+          One market must stay — add more from the Markets step
+        </p>
+      )}
     </div>
   )
 }
