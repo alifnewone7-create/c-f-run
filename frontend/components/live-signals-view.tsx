@@ -1,12 +1,14 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { Clock, Timer, Scale, RadioTower, RefreshCw } from 'lucide-react'
+import { Clock, Timer, Scale, RefreshCw } from 'lucide-react'
 import { CocoPageShell } from '@/components/coco/coco-page-shell'
 import { AuthGuard } from '@/components/auth-guard'
+import { GlyphLive } from '@/components/coco/coco-glyphs'
 import {
   AnalyzingStage,
   BrokerBar,
+  BrokerLine,
   DirTag,
   MarketSections,
   MarketHeader,
@@ -14,6 +16,7 @@ import {
   SearchBox,
   SegTabs,
   StatTile,
+  StrategyLine,
   VerdictPlate,
   computeLiveEntry,
   formatTime,
@@ -24,7 +27,7 @@ import {
 import { otcMarkets, realMarkets, type Market, type MarketType } from '@/lib/markets'
 import type { Broker } from '@/lib/brokers'
 import { StrategySelect } from '@/components/strategy-select'
-import { DEFAULT_STRATEGY, getStrategy, type StrategyId } from '@/lib/strategies'
+import { DEFAULT_STRATEGY, type StrategyId } from '@/lib/strategies'
 import { useGatedAction } from '@/hooks/use-gated-action'
 
 type Step = 'market' | 'confirm' | 'analyzing' | 'result'
@@ -138,7 +141,7 @@ function LiveStudio() {
 
   return (
     <div ref={topRef} className="inj flex flex-1 scroll-mt-24 flex-col gap-4 sm:gap-5" data-testid="live-studio">
-      <BrokerBar broker={broker} onChange={setBroker} />
+      {step !== 'result' && <BrokerBar broker={broker} onChange={setBroker} />}
 
       {step === 'market' && (
         <section className="inj-panel coco-rise" style={{ '--d': '80ms' } as React.CSSProperties} data-testid="live-market-step">
@@ -155,10 +158,10 @@ function LiveStudio() {
           <StrategySelect value={strategy} onChange={setStrategy} testidPrefix="live" />
           <div className="inj-divider" />
           <div className="inj-stats">
-            <StatTile icon={Timer} label="Duration" value="1 Minute" testid="live-rule-duration" />
-            <StatTile icon={Scale} label="Money management" value="1 Step MTG" testid="live-rule-mtg" />
+            <StatTile icon={Timer} label="Duration" value="1 Minute" tone="iris" testid="live-rule-duration" />
+            <StatTile icon={Scale} label="Money mgmt" value="1 Step MTG" tone="mint" testid="live-rule-mtg" />
           </div>
-          <PrimaryButton onClick={generate} disabled={busy} icon={RadioTower} testid="live-generate-button">
+          <PrimaryButton onClick={generate} disabled={busy} icon={GlyphLive} testid="live-generate-button">
             {busy ? 'Preparing…' : 'Generate Live Signal'}
           </PrimaryButton>
         </section>
@@ -178,8 +181,7 @@ function LiveStudio() {
 }
 
 function LiveResult({ signal, onReset }: { signal: LiveSignal; onReset: () => void }) {
-  const { market, entry, direction } = signal
-  const strat = getStrategy(signal.strategy)
+  const { market, entry, direction, broker } = signal
 
   return (
     <div className="flex flex-col gap-4" data-testid="live-result">
@@ -189,18 +191,17 @@ function LiveResult({ signal, onReset }: { signal: LiveSignal; onReset: () => vo
           <DirTag direction={direction} testid="live-direction-pill" />
         </div>
 
-        <span className="inj-chip self-start" data-testid="live-strategy-used">
-          <RadioTower className="h-3 w-3" />
-          {strat.name}
-        </span>
+        <BrokerLine broker={broker} testid="live-broker-card" />
 
         <VerdictPlate direction={direction} testid="live-verdict" kicker="Live verdict" />
 
         <div className="inj-stats inj-stats-3">
-          <StatTile icon={Clock} label="Entry time" value={formatTime(entry)} testid="live-entry-time" />
-          <StatTile icon={Timer} label="Duration" value="1 Min" testid="live-duration" />
-          <StatTile icon={Scale} label="Money mgmt" value="1 Step MTG" testid="live-mtg" />
+          <StatTile icon={Clock} label="Entry time" value={formatTime(entry)} tone="amber" testid="live-entry-time" />
+          <StatTile icon={Timer} label="Duration" value="1 Min" tone="iris" testid="live-duration" />
+          <StatTile icon={Scale} label="Money mgmt" value="1 Step MTG" tone="mint" testid="live-mtg" />
         </div>
+
+        <StrategyLine strategy={signal.strategy} testid="live-strategy-used" />
       </section>
 
       <PrimaryButton onClick={onReset} icon={RefreshCw} testid="live-reset-button" delay="140ms">

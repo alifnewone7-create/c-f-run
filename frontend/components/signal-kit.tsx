@@ -17,12 +17,14 @@ import {
   ChevronRight,
   Syringe,
   ShieldCheck,
+  Waypoints,
 } from 'lucide-react'
 import { PairFlags } from '@/components/pair-flags'
 import { GlyphOtc, GlyphReal } from '@/components/coco/coco-glyphs'
 import { AnalyzeFlow } from '@/components/analyze-flow'
 import { marketLabel, type Market, type MarketType } from '@/lib/markets'
 import { BROKERS, readStoredBroker, storeBroker, getBroker, type Broker, type BrokerId } from '@/lib/brokers'
+import { getStrategy, type StrategyId } from '@/lib/strategies'
 
 export type Direction = 'UP' | 'DOWN'
 
@@ -177,6 +179,27 @@ export function BrokerLine({ broker, testid = 'signal-broker-line' }: { broker: 
         <i aria-hidden="true" />
         Linked
       </span>
+    </div>
+  )
+}
+
+export function StrategyLine({ strategy, testid = 'signal-strategy-line' }: { strategy: StrategyId; testid?: string }) {
+  const s = getStrategy(strategy)
+  return (
+    <div className="sig-scard" style={{ '--accent': s.accent } as React.CSSProperties} data-testid={testid}>
+      <span className="sig-scard-glow" aria-hidden="true" />
+      <span className="sig-scard-thumb" aria-hidden="true">
+        <img src={s.imgSm} alt="" width={240} height={360} decoding="async" />
+      </span>
+      <span className="sig-scard-body">
+        <span className="sig-scard-label">
+          <Waypoints className="h-3 w-3" />
+          Strategy
+        </span>
+        <span className="sig-scard-name">{s.name}</span>
+        <span className="sig-scard-tag">{s.tagline}</span>
+      </span>
+      <span className="sig-scard-badge">Active</span>
     </div>
   )
 }
@@ -483,14 +506,16 @@ export function StatTile({
   label,
   value,
   testid,
+  tone,
 }: {
   icon: React.ComponentType<{ className?: string }>
   label: string
   value: string
   testid: string
+  tone?: 'iris' | 'mint' | 'amber'
 }) {
   return (
-    <div className="inj-stat">
+    <div className={tone ? 'inj-stat inj-stat-grad' : 'inj-stat'} data-tone={tone}>
       <span className="inj-stat-icon">
         <Icon className="h-4 w-4" />
       </span>

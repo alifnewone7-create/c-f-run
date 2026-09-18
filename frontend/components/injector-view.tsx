@@ -14,6 +14,7 @@ import {
   SearchBox,
   SegTabs,
   StatTile,
+  StrategyLine,
   VerdictPlate,
   computeLiveEntry,
   formatTime,
@@ -22,7 +23,7 @@ import {
 } from '@/components/signal-kit'
 import { otcMarkets, realMarkets, type Market, type MarketType } from '@/lib/markets'
 import { StrategySelect } from '@/components/strategy-select'
-import { DEFAULT_STRATEGY, getStrategy, type StrategyId } from '@/lib/strategies'
+import { DEFAULT_STRATEGY, type StrategyId } from '@/lib/strategies'
 import { useGatedAction } from '@/hooks/use-gated-action'
 
 type Step = 'market' | 'duration' | 'analyzing' | 'result'
@@ -221,7 +222,6 @@ function InjectorStudio() {
 function ResultCard({ result, onReset }: { result: Injection; onReset: () => void }) {
   const { market, duration, direction, entry, seed } = result
   const expiry = new Date(entry.getTime() + duration * 60_000)
-  const strat = getStrategy(result.strategy)
 
   return (
     <div className="flex flex-col gap-4" data-testid="injector-result">
@@ -230,11 +230,6 @@ function ResultCard({ result, onReset }: { result: Injection; onReset: () => voi
           <MarketHeader market={market} suffix="Injector" nameTestid="injector-selected-market" />
           <DirTag direction={direction} testid="injector-direction-pill" />
         </div>
-
-        <span className="inj-chip self-start" data-testid="injector-strategy-used">
-          <Syringe className="h-3 w-3" />
-          {strat.name}
-        </span>
 
         <div className="inj-chart">
           <div className="inj-chart-head">
@@ -258,6 +253,8 @@ function ResultCard({ result, onReset }: { result: Injection; onReset: () => voi
           <StatTile icon={Clock} label="Entry time" value={formatTime(entry)} testid="injector-entry-time" />
           <StatTile icon={Timer} label="Duration" value={`${duration} Min`} testid="injector-duration" />
         </div>
+
+        <StrategyLine strategy={result.strategy} testid="injector-strategy-used" />
       </section>
 
       <PrimaryButton onClick={onReset} icon={RefreshCw} testid="injector-reset-button" delay="140ms">

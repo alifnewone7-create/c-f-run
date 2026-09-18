@@ -63,7 +63,8 @@
   .mk-item,
   .fs-card,
   .fsx,
-  .sig-bcard {
+  .sig-bcard,
+  .sig-scard {
     box-shadow: none;
   }
 

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { X, ChevronDown, Check, Cpu } from 'lucide-react'
+import { X, ChevronDown, Check, BrainCircuit } from 'lucide-react'
 import { STRATEGIES, getStrategy, type StrategyId } from '@/lib/strategies'
 import { cn } from '@/lib/utils'
 
@@ -41,11 +41,10 @@ export function StrategySelect({
   return (
     <section className="stg" data-testid={`${testidPrefix}-strategy`}>
       <header className="stg-head">
-        <p className="inj-kicker inj-kicker-soft">Select strategy</p>
-        <span className="inj-chip">
-          <Cpu className="h-3 w-3" />
-          Engine mode
+        <span className="stg-head-icon" aria-hidden="true">
+          <BrainCircuit className="h-4 w-4" />
         </span>
+        <p className="inj-kicker inj-kicker-soft">Select strategy</p>
       </header>
 
       <button

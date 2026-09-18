@@ -7,8 +7,19 @@
 .stg-head {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 10px;
+  gap: 9px;
+}
+.stg-head-icon {
+  display: grid;
+  place-items: center;
+  flex: none;
+  height: 28px;
+  width: 28px;
+  border-radius: 9px;
+  border: 1px solid rgba(196, 166, 255, 0.28);
+  background: linear-gradient(160deg, rgba(139, 92, 255, 0.42), rgba(79, 209, 255, 0.16));
+  color: #e4d6ff;
+  box-shadow: rgba(139, 92, 255, 0.45) 0 8px 18px -12px;
 }
 
 .stg-field {

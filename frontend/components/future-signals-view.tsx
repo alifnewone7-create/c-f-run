@@ -1,18 +1,21 @@
 'use client'
 
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Clock, Timer, X, Minus, Plus, Coins, Sigma, Lock, Radar, RefreshCw, Layers, ArrowUp, ArrowDown, ArrowLeft, ArrowRight, Scale } from 'lucide-react'
+import { Clock, Timer, X, Minus, Plus, Coins, Sigma, Lock, RefreshCw, Layers, ArrowUp, ArrowDown, ArrowLeft, ArrowRight, Scale, ChevronDown, ChevronUp } from 'lucide-react'
 import { CocoPageShell } from '@/components/coco/coco-page-shell'
 import { AuthGuard } from '@/components/auth-guard'
 import { PairFlags } from '@/components/pair-flags'
+import { GlyphFuture } from '@/components/coco/coco-glyphs'
 import {
   AnalyzingStage,
   BrokerBar,
+  BrokerLine,
   DirTag,
   MarketSections,
   PrimaryButton,
   SearchBox,
   SegTabs,
+  StrategyLine,
   formatTime,
   useBroker,
   useMarketFilter,
@@ -146,7 +149,7 @@ function FutureStudio() {
 
   return (
     <div ref={topRef} className="inj flex flex-1 scroll-mt-24 flex-col gap-4 sm:gap-5" data-testid="future-studio">
-      <BrokerBar broker={broker} onChange={setBroker} />
+      {phase !== 'result' && <BrokerBar broker={broker} onChange={setBroker} />}
 
       {phase === 'market' && (
         <>
@@ -327,7 +330,7 @@ function FutureStudio() {
                 <span className="fs-dock-sub">{getStrategy(strategy).name} · {broker.name}</span>
               </span>
             </div>
-            <PrimaryButton onClick={generate} disabled={selectedList.length === 0 || busy} icon={Radar} testid="future-generate-button">
+            <PrimaryButton onClick={generate} disabled={selectedList.length === 0 || busy} icon={GlyphFuture} testid="future-generate-button">
               {busy ? 'Preparing…' : `Generate ${count} Signal${count > 1 ? 's' : ''}`}
             </PrimaryButton>
           </div>
@@ -400,7 +403,10 @@ function QueueHeader({ list, count }: { list: Market[]; count: number }) {
   )
 }
 
+const VISIBLE = 4
+
 function SelectedRow({ list, onRemove }: { list: Market[]; onRemove: (m: Market) => void }) {
+  const [all, setAll] = useState(false)
   if (list.length === 0) {
     return (
       <p className="fs-selected-empty" data-testid="future-selected-empty">
@@ -409,13 +415,18 @@ function SelectedRow({ list, onRemove }: { list: Market[]; onRemove: (m: Market)
     )
   }
   const locked = list.length === 1
+  const overflow = list.length > VISIBLE
+  const shown = all || !overflow ? list : list.slice(0, VISIBLE)
   return (
     <div className="fs-selected" data-testid="future-selected">
-      <div className="fs-chips">
-        {list.map((m) => (
-          <span key={m.id} className="fs-chip" data-locked={locked} data-testid={`future-chip-${m.base}${m.quote}`}>
-            <PairFlags base={m.base} quote={m.quote} size={14} />
-            <span className="truncate">{marketLabel(m)}</span>
+      <div className="fs-sel-grid">
+        {shown.map((m, i) => (
+          <span key={m.id} className="fs-sel" data-locked={locked} style={{ '--d': `${i * 40}ms` } as React.CSSProperties} data-testid={`future-chip-${m.base}${m.quote}`}>
+            <PairFlags base={m.base} quote={m.quote} size={18} />
+            <span className="fs-sel-body">
+              <b className="truncate">{marketLabel(m)}</b>
+              <em>{m.type === 'otc' ? 'OTC' : 'Real'}</em>
+            </span>
             <button
               type="button"
               onClick={() => !locked && onRemove(m)}
@@ -429,6 +440,21 @@ function SelectedRow({ list, onRemove }: { list: Market[]; onRemove: (m: Market)
           </span>
         ))}
       </div>
+      {overflow && (
+        <button type="button" onClick={() => setAll((v) => !v)} className="fs-sel-more" data-testid="future-selected-toggle">
+          {all ? (
+            <>
+              <ChevronUp className="h-3.5 w-3.5" />
+              Show less
+            </>
+          ) : (
+            <>
+              <ChevronDown className="h-3.5 w-3.5" />
+              See all {list.length} pairs
+            </>
+          )}
+        </button>
+      )}
       {locked && (
         <p className="fs2-hint" data-testid="future-selected-hint">
           <Lock className="h-3 w-3" />
@@ -445,11 +471,10 @@ function FutureResults({ signals, broker, markets, onReset, strategy }: { signal
     <div className="flex flex-col gap-4" data-testid="future-result">
       <section className="inj-panel coco-rise" style={{ '--d': '40ms' } as React.CSSProperties}>
         <QueueHeader list={markets} count={signals.length} />
+        <BrokerLine broker={broker} testid="future-broker-card" />
+        <StrategyLine strategy={strategy} testid="future-strategy-used" />
         <div className="fsx-brokerrow">
-          <span className="inj-chip" data-testid="future-strategy-used">
-            <Radar className="h-3 w-3" />
-            {getStrategy(strategy).name}
-          </span>
+          <p className="inj-kicker inj-kicker-soft">Signal queue</p>
           <span className="fs-mix" data-testid="future-mix">
             <i data-tone="up">
               <ArrowUp className="h-3 w-3" strokeWidth={3} />
