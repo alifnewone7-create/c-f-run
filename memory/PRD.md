@@ -85,6 +85,15 @@ Design system: "cosmic purple" — background `#0b0618`, iris `#6d3bff` / `#8b5c
 
   - Future Signals step 2 redesign (same day): "Clear all" button removed; the last remaining market can't be dropped (chip `data-locked`, Lock icon, disabled button + `future-selected-hint`). Setup cards rebuilt as `fs2-*` (accent hairline, gradient icon tiles, count badge with "pairs" label, big -/+ count dial, progress rail, 4-col preset grid). Icons changed to unique ones: Selected markets = `Coins`, How many signals = `Sigma`. Testing agent: all pass (mobile + desktop).
 
+- 2026-06 (result cards / strategy header / Future step 2 grid, Banglish request):
+  - Results: `BrokerLine` (sig-bcard) back at the top of Live + Future result panels (below market header); NEW `StrategyLine` (`sig-scard`: art thumb, "Strategy" label, name, tagline, accent badge) below the stats on Live, below Entry/Duration on Injector, below broker card on Future. Old `inj-chip` strategy chips removed. Injector shows no broker card.
+  - `BrokerBar` (top "Broker · Change") hidden while `step/phase === 'result'` on Live + Future.
+  - `StatTile` got a `tone` prop (`iris|mint|amber`) → `.inj-stat-grad` gradient glass tiles (Live confirm + result). Compact sizing <480px, label "Money mgmt".
+  - `StrategySelect` header: `BrainCircuit` icon tile (`stg-head-icon`) + "Select strategy"; "Engine mode" chip removed.
+  - Generate Live Signal icon → `GlyphLive`; Future generate icon → `GlyphFuture` (both from `coco-glyphs.tsx`).
+  - Future step 2 selected markets → 2-col `fs-sel-grid` rows (flags, pair, OTC/Real, remove/lock button); >4 → shows 4 + `future-selected-toggle` ("See all N pairs" / "Show less"). Old `fs-chips` markup unused.
+  - Testing agent iteration_19: 100% frontend pass (desktop + mobile).
+
 ## Backlog
 - P1: none pending from user.
 - P2: Consider self-hosting all flag SVGs to remove the external CDN dependency entirely.
